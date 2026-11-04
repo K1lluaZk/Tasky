@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app/router.dart';
+import 'app/theme/app_theme.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    const ProviderScope(
-      child: TaskyApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: TaskyApp()));
 }
 
 class TaskyApp extends StatelessWidget {
@@ -15,18 +14,11 @@ class TaskyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Tasky',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Tasky - Personal Organizer'),
-        ),
-      ),
+      theme: AppTheme.light(),
+      routerConfig: AppRouter.router,
     );
   }
 }
