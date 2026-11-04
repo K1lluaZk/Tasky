@@ -9,8 +9,11 @@ class Events extends Table {
   TextColumn get id => text()();
   TextColumn get title => text().withLength(min: 1)();
   TextColumn get description => text().nullable()();
-  TextColumn get categoryId =>
-      text().nullable().references(Categories, #id, onDelete: KeyAction.setNull)();
+  TextColumn get categoryId => text().nullable().references(
+    Categories,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get eventDate => text().nullable()();
   IntColumn get startAt => integer().nullable()();
   IntColumn get endAt => integer().nullable()();
@@ -23,6 +26,6 @@ class Events extends Table {
 
   @override
   List<String> get customConstraints => [
-        'CHECK ((is_all_day = 1 AND event_date IS NOT NULL AND start_at IS NULL AND end_at IS NULL) OR (is_all_day = 0 AND event_date IS NULL AND start_at IS NOT NULL AND end_at IS NOT NULL AND end_at > start_at))',
-      ];
+    'CHECK ((is_all_day = 1 AND event_date IS NOT NULL AND start_at IS NULL AND end_at IS NULL) OR (is_all_day = 0 AND event_date IS NULL AND start_at IS NOT NULL AND end_at IS NOT NULL AND end_at > start_at))',
+  ];
 }
