@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'router.dart';
+import 'theme/app_theme.dart';
 
 class MobileOrganizerApp extends ConsumerWidget {
   const MobileOrganizerApp({super.key});
@@ -12,6 +14,7 @@ class MobileOrganizerApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Organizador Personal',
       debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(),
       routerConfig: router,
     );
   }

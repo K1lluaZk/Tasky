@@ -12,8 +12,11 @@ class Tasks extends Table {
   TextColumn get description => text().nullable()();
   TextColumn get priority => text().withDefault(const Constant('medium'))();
   TextColumn get status => text().withDefault(const Constant('pending'))();
-  TextColumn get categoryId =>
-      text().nullable().references(Categories, #id, onDelete: KeyAction.setNull)();
+  TextColumn get categoryId => text().nullable().references(
+    Categories,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get scheduledDate => text().nullable()();
   TextColumn get dueDate => text().nullable()();
   IntColumn get completedAt => integer().nullable()();
@@ -25,7 +28,7 @@ class Tasks extends Table {
 
   @override
   List<String> get customConstraints => [
-        'CHECK (priority IN (\'low\', \'medium\', \'high\'))',
-        'CHECK (status IN (\'pending\', \'completed\', \'cancelled\'))',
-      ];
+    'CHECK (priority IN (\'low\', \'medium\', \'high\'))',
+    'CHECK (status IN (\'pending\', \'completed\', \'cancelled\'))',
+  ];
 }

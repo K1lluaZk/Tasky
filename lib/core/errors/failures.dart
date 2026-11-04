@@ -8,12 +8,15 @@ abstract class Failure {
   const Failure(this.message, [this.cause]);
 
   @override
-  String toString() => '$runtimeType: $message${cause != null ? ' (Cause: $cause)' : ''}';
+  String toString() =>
+      '$runtimeType: $message${cause != null ? ' (Cause: $cause)' : ''}';
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is Failure && other.runtimeType == runtimeType && other.message == message;
+    return other is Failure &&
+        other.runtimeType == runtimeType &&
+        other.message == message;
   }
 
   @override
