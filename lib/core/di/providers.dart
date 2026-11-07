@@ -11,6 +11,7 @@ import '../../features/categories/domain/usecases/get_categories.dart';
 import '../../features/categories/domain/usecases/get_category_by_id.dart';
 import '../../features/categories/domain/usecases/update_category.dart';
 import '../../features/categories/presentation/controllers/category_controller.dart';
+import '../../features/tasks/data/datasources/task_local_datasource.dart';
 import '../../features/tasks/data/repositories/task_repository_impl.dart';
 import '../../features/tasks/domain/entities/task.dart';
 import '../../features/tasks/domain/repositories/task_repository.dart';
@@ -63,8 +64,12 @@ final categoryControllerProvider =
 // Tareas (Feature: Tasks)
 // ==========================================
 
+final taskLocalDataSourceProvider = Provider<TaskLocalDataSource>((ref) {
+  return TaskLocalDataSourceImpl(ref.watch(appDatabaseProvider));
+});
+
 final taskRepositoryProvider = Provider<TaskRepository>((ref) {
-  return TaskRepositoryImpl(ref.watch(appDatabaseProvider));
+  return TaskRepositoryImpl(ref.watch(taskLocalDataSourceProvider));
 });
 
 final getTasksUseCaseProvider = Provider<GetTasksUseCase>((ref) {

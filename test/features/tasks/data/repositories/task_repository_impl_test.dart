@@ -2,17 +2,20 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tasky/core/database/app_database.dart';
 import 'package:tasky/core/errors/failures.dart';
+import 'package:tasky/features/tasks/data/datasources/task_local_datasource.dart';
 import 'package:tasky/features/tasks/data/repositories/task_repository_impl.dart';
 import 'package:tasky/features/tasks/domain/entities/task.dart';
 
 void main() {
   late AppDatabase db;
+  late TaskLocalDataSource dataSource;
   late TaskRepositoryImpl repository;
   final now = DateTime.now();
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
-    repository = TaskRepositoryImpl(db);
+    dataSource = TaskLocalDataSourceImpl(db);
+    repository = TaskRepositoryImpl(dataSource);
   });
 
   tearDown(() async {
