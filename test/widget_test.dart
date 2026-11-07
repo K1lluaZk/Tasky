@@ -1,15 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tasky/main.dart';
+import 'package:tasky/app/app.dart';
 
 void main() {
-  testWidgets('TaskyApp smoke test', (WidgetTester tester) async {
+  testWidgets('MobileOrganizerApp smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
-        child: TaskyApp(),
+        child: MobileOrganizerApp(),
       ),
     );
 
-    expect(find.text('Tasky - Personal Organizer'), findsOneWidget);
+    // Initial frame render
+    await tester.pump();
+
+    // Verify AppBar with title 'Tareas' is rendered
+    expect(find.text('Tareas'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }
