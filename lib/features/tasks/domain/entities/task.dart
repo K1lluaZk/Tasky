@@ -68,6 +68,7 @@ class Task {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? completedAt,
+    bool clearCompletedAt = false,
   }) {
     return Task(
       id: id ?? this.id,
@@ -80,7 +81,7 @@ class Task {
       dueDate: dueDate ?? this.dueDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      completedAt: completedAt ?? this.completedAt,
+      completedAt: clearCompletedAt ? null : (completedAt ?? this.completedAt),
     );
   }
 
