@@ -1,8 +1,8 @@
-import 'package:intl/intl.dart';
+import 'task_priority.dart';
+import 'task_status.dart';
 
-enum TaskPriority { low, medium, high }
-
-enum TaskStatus { pending, completed, cancelled }
+export 'task_priority.dart';
+export 'task_status.dart';
 
 class Task {
   const Task({
@@ -33,8 +33,7 @@ class Task {
 
   bool get isOverdue {
     if (dueDate == null ||
-        status == TaskStatus.completed ||
-        status == TaskStatus.cancelled) {
+        status != TaskStatus.pending) {
       return false;
     }
 
@@ -48,13 +47,16 @@ class Task {
   String get priorityLabel => priority.name;
   String get statusLabel => status.name;
 
-  String get scheduledDateLabel => scheduledDate == null
-      ? 'Sin fecha planificada'
-      : DateFormat('dd/MM/yyyy').format(scheduledDate!);
+  String get scheduledDateLabel => _dateLabel(scheduledDate, 'Sin fecha planificada');
 
   String get dueDateLabel => dueDate == null
       ? 'Sin fecha límite'
-      : DateFormat('dd/MM/yyyy').format(dueDate!);
+      : _dateLabel(dueDate, 'Sin fecha límite');
+
+  String _dateLabel(DateTime? date, String emptyLabel) {
+    if (date == null) return emptyLabel;
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
 
   Task copyWith({
     String? id,
@@ -69,19 +71,33 @@ class Task {
     DateTime? updatedAt,
     DateTime? completedAt,
     bool clearCompletedAt = false,
+    bool clearDescription = false,
+    bool clearCategoryId = false,
+    bool clearScheduledDate = false,
+    bool clearDueDate = false,
   }) {
     return Task(
       id: id ?? this.id,
       title: title ?? this.title,
-      description: description ?? this.description,
+      description: clearDescription ? null : (description ?? this.description),
       priority: priority ?? this.priority,
       status: status ?? this.status,
-      categoryId: categoryId ?? this.categoryId,
-      scheduledDate: scheduledDate ?? this.scheduledDate,
-      dueDate: dueDate ?? this.dueDate,
+      categoryId: clearCategoryId ? null : (categoryId ?? this.categoryId),
+      scheduledDate: clearScheduledDate ? null : (scheduledDate ?? this.scheduledDate),
+      dueDate: clearDueDate ? null : (dueDate ?? this.dueDate),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       completedAt: clearCompletedAt ? null : (completedAt ?? this.completedAt),
+    );
+  }
+
+  Task withStatus(TaskStatus nextStatus, {DateTime? changedAt}) {
+    final timestamp = changedAt ?? DateTime.now();
+    return copyWith(
+      status: nextStatus,
+      updatedAt: timestamp,
+      completedAt: nextStatus == TaskStatus.completed ? timestamp : null,
+      clearCompletedAt: nextStatus != TaskStatus.completed,
     );
   }
 
@@ -94,10 +110,16 @@ class Task {
         other.description == description &&
         other.priority == priority &&
         other.status == status &&
-        other.categoryId == categoryId;
+        other.categoryId == categoryId &&
+        other.scheduledDate == scheduledDate &&
+        other.dueDate == dueDate &&
+        other.createdAt == createdAt &&
+        other.updatedAt == updatedAt &&
+        other.completedAt == completedAt;
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, title, description, priority, status, categoryId);
+      Object.hash(id, title, description, priority, status, categoryId,
+          scheduledDate, dueDate, createdAt, updatedAt, completedAt);
 }
