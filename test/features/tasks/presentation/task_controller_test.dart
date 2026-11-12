@@ -12,7 +12,18 @@ class MockTaskRepository implements TaskRepository {
   final List<Task> _tasks = [];
 
   @override
-  Future<List<Task>> getTasks() async => List.unmodifiable(_tasks);
+  Future<List<Task>> getTasks({
+    TaskStatus? status,
+    String? categoryId,
+    DateTime? scheduledDate,
+    DateTime? dueDate,
+  }) async => List.unmodifiable(
+    _tasks.where((task) =>
+      (status == null || task.status == status) &&
+      (categoryId == null || task.categoryId == categoryId) &&
+      (scheduledDate == null || task.scheduledDate == scheduledDate) &&
+      (dueDate == null || task.dueDate == dueDate)),
+  );
 
   @override
   Future<Task?> getTaskById(String id) async {

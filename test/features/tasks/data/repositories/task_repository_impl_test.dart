@@ -51,6 +51,10 @@ void main() {
       final allTasks = await repository.getTasks();
       expect(allTasks.length, 1);
       expect(allTasks.first.id, 'task-1');
+      expect(await repository.getTasks(status: TaskStatus.pending), hasLength(1));
+      expect(await repository.getTasks(status: TaskStatus.completed), isEmpty);
+      expect(await repository.getTasks(scheduledDate: DateTime(2026, 11, 10)), hasLength(1));
+      expect(await repository.getTasks(dueDate: DateTime(2026, 11, 10)), isEmpty);
     });
 
     test('createTask with empty title should throw ValidationFailure', () async {
@@ -123,6 +127,23 @@ void main() {
         () => repository.deleteTask('task-3'),
         throwsA(isA<NotFoundFailure>()),
       );
+    });
+
+    test('deleting a category preserves related task and clears categoryId', () async {
+      final category = (await db.select(db.categories).get()).first;
+      await repository.createTask(Task(
+        id: 'task-category',
+        title: 'Tarea vinculada',
+        categoryId: category.id,
+        createdAt: now,
+        updatedAt: now,
+      ));
+
+      await (db.delete(db.categories)..where((row) => row.id.equals(category.id))).go();
+
+      final task = await repository.getTaskById('task-category');
+      expect(task, isNotNull);
+      expect(task!.categoryId, isNull);
     });
   });
 }

@@ -6,7 +6,17 @@ class GetTasksUseCase {
 
   final TaskRepository _repository;
 
-  Future<List<Task>> call() {
-    return _repository.getTasks();
+  Future<List<Task>> call({
+    TaskStatus? status,
+    String? categoryId,
+    DateTime? scheduledDate,
+    DateTime? dueDate,
+  }) {
+    return _repository.getTasks(
+      status: status,
+      categoryId: categoryId,
+      scheduledDate: scheduledDate,
+      dueDate: dueDate,
+    );
   }
 }
