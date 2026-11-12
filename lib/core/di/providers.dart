@@ -20,6 +20,7 @@ import '../../features/tasks/domain/usecases/delete_task.dart';
 import '../../features/tasks/domain/usecases/get_task_by_id.dart';
 import '../../features/tasks/domain/usecases/get_tasks.dart';
 import '../../features/tasks/domain/usecases/update_task.dart';
+import '../../features/tasks/domain/usecases/toggle_task_status.dart';
 import '../../features/tasks/presentation/controllers/task_controller.dart';
 
 // ==========================================
@@ -96,12 +97,20 @@ final deleteTaskUseCaseProvider = Provider<DeleteTaskUseCase>((ref) {
   return DeleteTaskUseCase(ref.watch(taskRepositoryProvider));
 });
 
-final taskControllerProvider =
-    StateNotifierProvider<TaskController, AsyncValue<List<Task>>>((ref) {
-  return TaskController(
+final toggleTaskStatusUseCaseProvider = Provider<ToggleTaskStatusUseCase>((ref) {
+  return ToggleTaskStatusUseCase(ref.watch(taskRepositoryProvider));
+});
+
+final taskListNotifierProvider =
+    StateNotifierProvider<TaskListNotifier, AsyncValue<List<Task>>>((ref) {
+  return TaskListNotifier(
     getTasksUseCase: ref.watch(getTasksUseCaseProvider),
     createTaskUseCase: ref.watch(createTaskUseCaseProvider),
     updateTaskUseCase: ref.watch(updateTaskUseCaseProvider),
     deleteTaskUseCase: ref.watch(deleteTaskUseCaseProvider),
+    toggleTaskStatusUseCase: ref.watch(toggleTaskStatusUseCaseProvider),
   );
 });
+
+// Kept as an alias so existing UI code can migrate without breaking.
+final taskControllerProvider = taskListNotifierProvider;

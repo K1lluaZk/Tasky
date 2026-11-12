@@ -124,5 +124,39 @@ void main() {
       expect(controller.state.value!.first.status, TaskStatus.pending);
       expect(controller.state.value!.first.completedAt, isNull);
     });
+
+    test('setFilter exposes only pending or completed tasks', () async {
+      await controller.addTask(Task(
+        id: 'pending', title: 'Pendiente', createdAt: now, updatedAt: now,
+      ));
+      await controller.addTask(Task(
+        id: 'completed', title: 'Hecha', status: TaskStatus.completed,
+        completedAt: now, createdAt: now, updatedAt: now,
+      ));
+
+      await controller.setFilter(TaskListFilter.pending);
+      expect(controller.state.value!.map((task) => task.id), ['pending']);
+
+      await controller.setFilter(TaskListFilter.completed);
+      expect(controller.state.value!.map((task) => task.id), ['completed']);
+
+      await controller.setFilter(TaskListFilter.all);
+      expect(controller.state.value, hasLength(2));
+    });
+
+    test('setPrioritySort orders high, medium, then low', () async {
+      for (final priority in [TaskPriority.low, TaskPriority.high, TaskPriority.medium]) {
+        await controller.addTask(Task(
+          id: priority.name, title: priority.name, priority: priority,
+          createdAt: now, updatedAt: now,
+        ));
+      }
+
+      await controller.setPrioritySort(true);
+      expect(
+        controller.state.value!.map((task) => task.priority),
+        [TaskPriority.high, TaskPriority.medium, TaskPriority.low],
+      );
+    });
   });
 }

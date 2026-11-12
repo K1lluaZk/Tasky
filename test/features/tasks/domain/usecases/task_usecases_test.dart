@@ -7,6 +7,7 @@ import 'package:tasky/features/tasks/domain/usecases/delete_task.dart';
 import 'package:tasky/features/tasks/domain/usecases/get_task_by_id.dart';
 import 'package:tasky/features/tasks/domain/usecases/get_tasks.dart';
 import 'package:tasky/features/tasks/domain/usecases/update_task.dart';
+import 'package:tasky/features/tasks/domain/usecases/toggle_task_status.dart';
 
 /// Mock repository en memoria para tests de use cases.
 class MockTaskRepository implements TaskRepository {
@@ -49,6 +50,7 @@ void main() {
   late CreateTaskUseCase createTaskUseCase;
   late UpdateTaskUseCase updateTaskUseCase;
   late DeleteTaskUseCase deleteTaskUseCase;
+  late ToggleTaskStatusUseCase toggleTaskStatusUseCase;
 
   final now = DateTime.now();
 
@@ -59,6 +61,7 @@ void main() {
     createTaskUseCase = CreateTaskUseCase(repository);
     updateTaskUseCase = UpdateTaskUseCase(repository);
     deleteTaskUseCase = DeleteTaskUseCase(repository);
+    toggleTaskStatusUseCase = ToggleTaskStatusUseCase(repository);
   });
 
   group('Task UseCases Tests', () {
@@ -169,6 +172,26 @@ void main() {
         final found = await getTaskByIdUseCase('5');
         expect(found!.title, 'Actualizada');
         expect(found.priority, TaskPriority.high);
+      });
+    });
+
+    group('ToggleTaskStatusUseCase', () {
+      test('records completion time and clears it when reopened', () async {
+        final task = Task(
+          id: 'toggle',
+          title: 'Cambiar estado',
+          createdAt: now,
+          updatedAt: now,
+        );
+        await createTaskUseCase(task);
+
+        final completed = await toggleTaskStatusUseCase(task, changedAt: now);
+        expect(completed.status, TaskStatus.completed);
+        expect(completed.completedAt, now);
+
+        final pending = await toggleTaskStatusUseCase(completed, changedAt: now);
+        expect(pending.status, TaskStatus.pending);
+        expect(pending.completedAt, isNull);
       });
     });
 
