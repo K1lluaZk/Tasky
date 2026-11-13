@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tasky/core/errors/failures.dart';
 import 'package:tasky/features/tasks/domain/entities/task.dart';
-import 'package:tasky/features/tasks/domain/repositories/task_repository.dart';
 import 'package:tasky/features/tasks/domain/usecases/create_task.dart';
 import 'package:tasky/features/tasks/domain/usecases/delete_task.dart';
 import 'package:tasky/features/tasks/domain/usecases/get_task_by_id.dart';
@@ -9,50 +8,7 @@ import 'package:tasky/features/tasks/domain/usecases/get_tasks.dart';
 import 'package:tasky/features/tasks/domain/usecases/update_task.dart';
 import 'package:tasky/features/tasks/domain/usecases/toggle_task_status.dart';
 
-/// Mock repository en memoria para tests de use cases.
-class MockTaskRepository implements TaskRepository {
-  final List<Task> _tasks = [];
-
-  @override
-  Future<List<Task>> getTasks({
-    TaskStatus? status,
-    String? categoryId,
-    DateTime? scheduledDate,
-    DateTime? dueDate,
-  }) async => List.unmodifiable(
-    _tasks.where((task) =>
-      (status == null || task.status == status) &&
-      (categoryId == null || task.categoryId == categoryId) &&
-      (scheduledDate == null || task.scheduledDate == scheduledDate) &&
-      (dueDate == null || task.dueDate == dueDate)),
-  );
-
-  @override
-  Future<Task?> getTaskById(String id) async {
-    try {
-      return _tasks.firstWhere((t) => t.id == id);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  @override
-  Future<void> createTask(Task task) async {
-    _tasks.add(task);
-  }
-
-  @override
-  Future<void> updateTask(Task task) async {
-    final index = _tasks.indexWhere((t) => t.id == task.id);
-    if (index == -1) throw const NotFoundFailure('Tarea no encontrada.');
-    _tasks[index] = task;
-  }
-
-  @override
-  Future<void> deleteTask(String id) async {
-    _tasks.removeWhere((t) => t.id == id);
-  }
-}
+import '../../../../support/mock_task_repository.dart';
 
 void main() {
   late MockTaskRepository repository;
@@ -66,7 +22,7 @@ void main() {
   final now = DateTime.now();
 
   setUp(() {
-    repository = MockTaskRepository();
+    repository = MockTaskRepository(throwOnMissingUpdate: true);
     getTasksUseCase = GetTasksUseCase(repository);
     getTaskByIdUseCase = GetTaskByIdUseCase(repository);
     createTaskUseCase = CreateTaskUseCase(repository);
@@ -78,12 +34,7 @@ void main() {
   group('Task UseCases Tests', () {
     group('CreateTaskUseCase', () {
       test('rejects empty title', () {
-        final task = Task(
-          id: '1',
-          title: '',
-          createdAt: now,
-          updatedAt: now,
-        );
+        final task = Task(id: '1', title: '', createdAt: now, updatedAt: now);
 
         expect(
           () => createTaskUseCase(task),
@@ -200,7 +151,10 @@ void main() {
         expect(completed.status, TaskStatus.completed);
         expect(completed.completedAt, now);
 
-        final pending = await toggleTaskStatusUseCase(completed, changedAt: now);
+        final pending = await toggleTaskStatusUseCase(
+          completed,
+          changedAt: now,
+        );
         expect(pending.status, TaskStatus.pending);
         expect(pending.completedAt, isNull);
       });
@@ -237,12 +191,14 @@ void main() {
 
       test('returns all created tasks', () async {
         for (var i = 0; i < 3; i++) {
-          await createTaskUseCase(Task(
-            id: 'task-$i',
-            title: 'Tarea $i',
-            createdAt: now,
-            updatedAt: now,
-          ));
+          await createTaskUseCase(
+            Task(
+              id: 'task-$i',
+              title: 'Tarea $i',
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
         }
 
         final tasks = await getTasksUseCase();

@@ -72,7 +72,10 @@ void main() {
         updatedAt: now,
       );
 
-      expect(() => createCategory(invalidName), throwsA(isA<ValidationFailure>()));
+      expect(
+        () => createCategory(invalidName),
+        throwsA(isA<ValidationFailure>()),
+      );
 
       final invalidColor = Category(
         id: '2',
@@ -82,84 +85,107 @@ void main() {
         updatedAt: now,
       );
 
-      expect(() => createCategory(invalidColor), throwsA(isA<ValidationFailure>()));
-    });
-
-    test('CreateCategoryUseCase adds category and GetCategoriesUseCase retrieves it', () async {
-      final category = Category(
-        id: '10',
-        name: 'Diseño',
-        color: '#E91E63',
-        createdAt: now,
-        updatedAt: now,
-      );
-
-      await createCategory(category);
-
-      final list = await getCategories();
-      expect(list.length, 1);
-      expect(list.first.name, 'Diseño');
-
-      final byId = await getCategoryById('10');
-      expect(byId, isNotNull);
-      expect(byId!.name, 'Diseño');
-    });
-
-    test('UpdateCategoryUseCase rejects invalid hex or updates accurately', () async {
-      final category = Category(
-        id: '11',
-        name: 'Finanzas',
-        color: '#4CAF50',
-        createdAt: now,
-        updatedAt: now,
-      );
-      await createCategory(category);
-
-      final updated = category.copyWith(name: 'Finanzas Personales');
-      await updateCategory(updated);
-
-      final result = await getCategoryById('11');
-      expect(result!.name, 'Finanzas Personales');
-    });
-
-    test('DeleteCategoryUseCase throws ConflictFailure when attempting to delete a default category', () async {
-      final defaultCategory = Category(
-        id: 'default-1',
-        name: 'Estudios',
-        color: '#2196F3',
-        isDefault: true,
-        createdAt: now,
-        updatedAt: now,
-      );
-      await createCategory(defaultCategory);
-
       expect(
-        () => deleteCategory('default-1'),
-        throwsA(isA<ConflictFailure>()),
+        () => createCategory(invalidColor),
+        throwsA(isA<ValidationFailure>()),
       );
     });
 
-    test('DeleteCategoryUseCase throws NotFoundFailure when category does not exist', () async {
-      expect(
-        () => deleteCategory('non-existent'),
-        throwsA(isA<NotFoundFailure>()),
-      );
-    });
+    test(
+      'CreateCategoryUseCase adds category and GetCategoriesUseCase retrieves it',
+      () async {
+        final category = Category(
+          id: '10',
+          name: 'Diseño',
+          color: '#E91E63',
+          createdAt: now,
+          updatedAt: now,
+        );
 
-    test('DeleteCategoryUseCase removes non-default category successfully', () async {
-      final customCategory = Category(
-        id: 'custom-1',
-        name: 'Música',
-        color: '#9C27B0',
-        isDefault: false,
-        createdAt: now,
-        updatedAt: now,
-      );
-      await createCategory(customCategory);
+        await createCategory(category);
 
-      await deleteCategory('custom-1');
-      final result = await getCategoryById('custom-1');
-      expect(result, isNull);
-    });
+        final list = await getCategories();
+        expect(list.length, 1);
+        expect(list.first.name, 'Diseño');
+
+        final byId = await getCategoryById('10');
+        expect(byId, isNotNull);
+        expect(byId!.name, 'Diseño');
+      },
+    );
+
+    test(
+      'UpdateCategoryUseCase rejects invalid hex or updates accurately',
+      () async {
+        final category = Category(
+          id: '11',
+          name: 'Finanzas',
+          color: '#4CAF50',
+          createdAt: now,
+          updatedAt: now,
+        );
+        await createCategory(category);
+
+        expect(
+          () => updateCategory(category.copyWith(color: 'azul')),
+          throwsA(isA<ValidationFailure>()),
+        );
+
+        final updated = category.copyWith(name: 'Finanzas Personales');
+        await updateCategory(updated);
+
+        final result = await getCategoryById('11');
+        expect(result!.name, 'Finanzas Personales');
+      },
+    );
+
+    test(
+      'DeleteCategoryUseCase throws ConflictFailure when attempting to delete a default category',
+      () async {
+        final defaultCategory = Category(
+          id: 'default-1',
+          name: 'Estudios',
+          color: '#2196F3',
+          isDefault: true,
+          createdAt: now,
+          updatedAt: now,
+        );
+        await createCategory(defaultCategory);
+
+        expect(
+          () => deleteCategory('default-1'),
+          throwsA(isA<ConflictFailure>()),
+        );
+      },
+    );
+
+    test(
+      'DeleteCategoryUseCase throws NotFoundFailure when category does not exist',
+      () async {
+        expect(
+          () => deleteCategory('non-existent'),
+          throwsA(isA<NotFoundFailure>()),
+        );
+      },
+    );
+
+    test(
+      'DeleteCategoryUseCase removes non-default category successfully',
+      () async {
+        final customCategory = Category(
+          id: 'custom-1',
+          name: 'Música',
+          color: '#9C27B0',
+          isDefault: false,
+          createdAt: now,
+          updatedAt: now,
+        );
+        await createCategory(customCategory);
+
+        await deleteCategory('custom-1');
+        final result = await getCategoryById('custom-1');
+        expect(result, isNull);
+      },
+    );
   });
 }

@@ -2,8 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/task.dart';
-import '../../domain/entities/task_priority.dart';
-import '../../domain/entities/task_status.dart';
 
 extension TaskEntryMapper on TaskEntry {
   Task toDomain() {
@@ -60,5 +58,7 @@ DateTime? _parseOptionalDate(String? value) {
 
   final parsed = DateTime.tryParse(normalized!);
   // ignore: prefer_null_aware_operators
-  return parsed == null ? null : DateTime(parsed.year, parsed.month, parsed.day);
+  return parsed == null
+      ? null
+      : DateTime(parsed.year, parsed.month, parsed.day);
 }
