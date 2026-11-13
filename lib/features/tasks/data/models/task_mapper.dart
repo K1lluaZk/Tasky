@@ -2,8 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/task.dart';
-import '../../domain/entities/task_priority.dart';
-import '../../domain/entities/task_status.dart';
 
 extension TaskEntryMapper on TaskEntry {
   Task toDomain() {
