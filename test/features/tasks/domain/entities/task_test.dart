@@ -110,5 +110,61 @@ void main() {
       expect(updated.priority, TaskPriority.low);
       expect(updated.id, task.id);
     });
+
+    test('value equality compares by id, title, description, priority, status and categoryId', () {
+      final task1 = Task(
+        id: '8',
+        title: 'Tarea A',
+        description: 'Descripción',
+        priority: TaskPriority.high,
+        status: TaskStatus.pending,
+        categoryId: 'cat-1',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      final task2 = Task(
+        id: '8',
+        title: 'Tarea A',
+        description: 'Descripción',
+        priority: TaskPriority.high,
+        status: TaskStatus.pending,
+        categoryId: 'cat-1',
+        createdAt: now.add(const Duration(hours: 1)),
+        updatedAt: now.add(const Duration(hours: 1)),
+      );
+
+      expect(task1, equals(task2));
+      expect(task1.hashCode, task2.hashCode);
+    });
+
+    test('value equality detects differences', () {
+      final task1 = Task(
+        id: '9',
+        title: 'Tarea A',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      final task2 = task1.copyWith(title: 'Tarea B');
+
+      expect(task1, isNot(equals(task2)));
+    });
+
+    test('default priority is medium and default status is pending', () {
+      final task = Task(
+        id: '10',
+        title: 'Tarea por defecto',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      expect(task.priority, TaskPriority.medium);
+      expect(task.status, TaskStatus.pending);
+      expect(task.completedAt, isNull);
+      expect(task.categoryId, isNull);
+      expect(task.scheduledDate, isNull);
+      expect(task.dueDate, isNull);
+    });
   });
 }

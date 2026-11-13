@@ -11,10 +11,16 @@ import '../../features/categories/domain/usecases/get_categories.dart';
 import '../../features/categories/domain/usecases/get_category_by_id.dart';
 import '../../features/categories/domain/usecases/update_category.dart';
 import '../../features/categories/presentation/controllers/category_controller.dart';
+import '../../features/tasks/data/datasources/task_local_datasource.dart';
 import '../../features/tasks/data/repositories/task_repository_impl.dart';
 import '../../features/tasks/domain/entities/task.dart';
 import '../../features/tasks/domain/repositories/task_repository.dart';
+import '../../features/tasks/domain/usecases/create_task.dart';
+import '../../features/tasks/domain/usecases/delete_task.dart';
+import '../../features/tasks/domain/usecases/get_task_by_id.dart';
 import '../../features/tasks/domain/usecases/get_tasks.dart';
+import '../../features/tasks/domain/usecases/update_task.dart';
+import '../../features/tasks/domain/usecases/toggle_task_status.dart';
 import '../../features/tasks/presentation/controllers/task_controller.dart';
 
 // ==========================================
@@ -63,15 +69,48 @@ final categoryControllerProvider =
 // Tareas (Feature: Tasks)
 // ==========================================
 
+final taskLocalDataSourceProvider = Provider<TaskLocalDataSource>((ref) {
+  return TaskLocalDataSourceImpl(ref.watch(appDatabaseProvider));
+});
+
 final taskRepositoryProvider = Provider<TaskRepository>((ref) {
-  return TaskRepositoryImpl(ref.watch(appDatabaseProvider));
+  return TaskRepositoryImpl(ref.watch(taskLocalDataSourceProvider));
 });
 
 final getTasksUseCaseProvider = Provider<GetTasksUseCase>((ref) {
   return GetTasksUseCase(ref.watch(taskRepositoryProvider));
 });
 
-final taskControllerProvider =
-    StateNotifierProvider<TaskController, AsyncValue<List<Task>>>((ref) {
-  return TaskController(ref.watch(getTasksUseCaseProvider));
+final getTaskByIdUseCaseProvider = Provider<GetTaskByIdUseCase>((ref) {
+  return GetTaskByIdUseCase(ref.watch(taskRepositoryProvider));
 });
+
+final createTaskUseCaseProvider = Provider<CreateTaskUseCase>((ref) {
+  return CreateTaskUseCase(ref.watch(taskRepositoryProvider));
+});
+
+final updateTaskUseCaseProvider = Provider<UpdateTaskUseCase>((ref) {
+  return UpdateTaskUseCase(ref.watch(taskRepositoryProvider));
+});
+
+final deleteTaskUseCaseProvider = Provider<DeleteTaskUseCase>((ref) {
+  return DeleteTaskUseCase(ref.watch(taskRepositoryProvider));
+});
+
+final toggleTaskStatusUseCaseProvider = Provider<ToggleTaskStatusUseCase>((ref) {
+  return ToggleTaskStatusUseCase(ref.watch(taskRepositoryProvider));
+});
+
+final taskListNotifierProvider =
+    StateNotifierProvider<TaskListNotifier, AsyncValue<List<Task>>>((ref) {
+  return TaskListNotifier(
+    getTasksUseCase: ref.watch(getTasksUseCaseProvider),
+    createTaskUseCase: ref.watch(createTaskUseCaseProvider),
+    updateTaskUseCase: ref.watch(updateTaskUseCaseProvider),
+    deleteTaskUseCase: ref.watch(deleteTaskUseCaseProvider),
+    toggleTaskStatusUseCase: ref.watch(toggleTaskStatusUseCaseProvider),
+  );
+});
+
+// Kept as an alias so existing UI code can migrate without breaking.
+final taskControllerProvider = taskListNotifierProvider;
