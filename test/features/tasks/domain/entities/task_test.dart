@@ -111,7 +111,7 @@ void main() {
       expect(updated.id, task.id);
     });
 
-    test('value equality compares by id, title, description, priority, status and categoryId', () {
+    test('value equality compares all domain fields', () {
       final task1 = Task(
         id: '8',
         title: 'Tarea A',
@@ -134,8 +134,7 @@ void main() {
         updatedAt: now.add(const Duration(hours: 1)),
       );
 
-      expect(task1, equals(task2));
-      expect(task1.hashCode, task2.hashCode);
+      expect(task1, isNot(equals(task2)));
     });
 
     test('value equality detects differences', () {
@@ -165,6 +164,26 @@ void main() {
       expect(task.categoryId, isNull);
       expect(task.scheduledDate, isNull);
       expect(task.dueDate, isNull);
+    });
+
+    test('status transition sets and clears completedAt', () {
+      final completed = Task(
+        id: 'transition', title: 'Transición', createdAt: now, updatedAt: now,
+      ).withStatus(TaskStatus.completed, changedAt: now);
+      expect(completed.status, TaskStatus.completed);
+      expect(completed.completedAt, now);
+
+      final pending = completed.withStatus(TaskStatus.pending, changedAt: now);
+      expect(pending.status, TaskStatus.pending);
+      expect(pending.completedAt, isNull);
+      expect(completed.status, TaskStatus.completed);
+    });
+
+    test('parses enum values with safe defaults', () {
+      expect(TaskPriorityParsing.fromString('high'), TaskPriority.high);
+      expect(TaskPriorityParsing.fromString('unknown'), TaskPriority.medium);
+      expect(TaskStatusParsing.fromString('cancelled'), TaskStatus.cancelled);
+      expect(TaskStatusParsing.fromString('unknown'), TaskStatus.pending);
     });
   });
 }
