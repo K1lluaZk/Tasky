@@ -1,7 +1,15 @@
+import 'package:drift/drift.dart';
+
 import '../../../../core/database/app_database.dart';
+import '../../domain/entities/task.dart';
 
 abstract class TaskLocalDataSource {
-  Future<List<TaskEntry>> getTasks();
+  Future<List<TaskEntry>> getTasks({
+    TaskStatus? status,
+    String? categoryId,
+    String? scheduledDate,
+    String? dueDate,
+  });
   Future<TaskEntry?> getTaskById(String id);
   Future<void> insertTask(TasksCompanion task);
   Future<int> updateTask(TasksCompanion task);
@@ -14,8 +22,26 @@ class TaskLocalDataSourceImpl implements TaskLocalDataSource {
   final AppDatabase _database;
 
   @override
-  Future<List<TaskEntry>> getTasks() {
-    return _database.select(_database.tasks).get();
+  Future<List<TaskEntry>> getTasks({
+    TaskStatus? status,
+    String? categoryId,
+    String? scheduledDate,
+    String? dueDate,
+  }) {
+    final query = _database.select(_database.tasks);
+    query.where((task) {
+      Expression<bool> condition = const Constant(true);
+      if (status != null) condition = condition & task.status.equals(status.name);
+      if (categoryId != null) {
+        condition = condition & task.categoryId.equals(categoryId);
+      }
+      if (scheduledDate != null) {
+        condition = condition & task.scheduledDate.equals(scheduledDate);
+      }
+      if (dueDate != null) condition = condition & task.dueDate.equals(dueDate);
+      return condition;
+    });
+    return query.get();
   }
 
   @override
