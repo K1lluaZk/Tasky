@@ -2,6 +2,8 @@ import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/task.dart';
+import '../../domain/entities/task_priority.dart';
+import '../../domain/entities/task_status.dart';
 
 extension TaskEntryMapper on TaskEntry {
   Task toDomain() {
@@ -9,14 +11,8 @@ extension TaskEntryMapper on TaskEntry {
       id: id,
       title: title,
       description: description,
-      priority: TaskPriority.values.firstWhere(
-        (value) => value.name == priority,
-        orElse: () => TaskPriority.medium,
-      ),
-      status: TaskStatus.values.firstWhere(
-        (value) => value.name == status,
-        orElse: () => TaskStatus.pending,
-      ),
+      priority: TaskPriorityParsing.fromString(priority),
+      status: TaskStatusParsing.fromString(status),
       categoryId: categoryId,
       scheduledDate: _parseOptionalDate(scheduledDate),
       dueDate: _parseOptionalDate(dueDate),

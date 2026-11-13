@@ -49,9 +49,19 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<List<Task>> getTasks() async {
+  Future<List<Task>> getTasks({
+    TaskStatus? status,
+    String? categoryId,
+    DateTime? scheduledDate,
+    DateTime? dueDate,
+  }) async {
     try {
-      final rows = await _localDataSource.getTasks();
+      final rows = await _localDataSource.getTasks(
+        status: status,
+        categoryId: categoryId,
+        scheduledDate: scheduledDate == null ? null : _dateToIso(scheduledDate),
+        dueDate: dueDate == null ? null : _dateToIso(dueDate),
+      );
       return rows.map((row) => row.toDomain()).toList();
     } catch (e) {
       if (e is Failure) rethrow;
@@ -77,3 +87,6 @@ class TaskRepositoryImpl implements TaskRepository {
     }
   }
 }
+
+String _dateToIso(DateTime date) =>
+    '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
