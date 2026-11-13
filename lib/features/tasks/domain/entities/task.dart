@@ -68,6 +68,7 @@ class Task {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? completedAt,
+    bool clearCompletedAt = false,
   }) {
     return Task(
       id: id ?? this.id,
@@ -80,7 +81,23 @@ class Task {
       dueDate: dueDate ?? this.dueDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      completedAt: completedAt ?? this.completedAt,
+      completedAt: clearCompletedAt ? null : (completedAt ?? this.completedAt),
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Task &&
+        other.id == id &&
+        other.title == title &&
+        other.description == description &&
+        other.priority == priority &&
+        other.status == status &&
+        other.categoryId == categoryId;
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, title, description, priority, status, categoryId);
 }
