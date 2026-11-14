@@ -7,9 +7,9 @@ class CreateEventUseCase {
 
   final EventRepository _repository;
 
-  Future<void> call(Event event) {
+  Future<void> call(Event event) async {
     _validate(event);
-    return _repository.createEvent(event);
+    await _repository.createEvent(event);
   }
 }
 
