@@ -11,6 +11,16 @@ import '../../features/categories/domain/usecases/get_categories.dart';
 import '../../features/categories/domain/usecases/get_category_by_id.dart';
 import '../../features/categories/domain/usecases/update_category.dart';
 import '../../features/categories/presentation/controllers/category_controller.dart';
+import '../../features/events/data/datasources/event_local_datasource.dart';
+import '../../features/events/data/repositories/event_repository_impl.dart';
+import '../../features/events/domain/entities/event.dart';
+import '../../features/events/domain/repositories/event_repository.dart';
+import '../../features/events/domain/usecases/create_event.dart';
+import '../../features/events/domain/usecases/delete_event.dart';
+import '../../features/events/domain/usecases/get_event_by_id.dart';
+import '../../features/events/domain/usecases/get_events.dart';
+import '../../features/events/domain/usecases/update_event.dart';
+import '../../features/events/presentation/controllers/event_controller.dart';
 import '../../features/tasks/data/datasources/task_local_datasource.dart';
 import '../../features/tasks/data/repositories/task_repository_impl.dart';
 import '../../features/tasks/domain/entities/task.dart';
@@ -114,3 +124,45 @@ final taskListNotifierProvider =
 
 // Kept as an alias so existing UI code can migrate without breaking.
 final taskControllerProvider = taskListNotifierProvider;
+
+// ==========================================
+// Eventos (Feature: Events)
+// ==========================================
+
+final eventLocalDataSourceProvider = Provider<EventLocalDataSource>((ref) {
+  return EventLocalDataSourceImpl(ref.watch(appDatabaseProvider));
+});
+
+final eventRepositoryProvider = Provider<EventRepository>((ref) {
+  return EventRepositoryImpl(ref.watch(eventLocalDataSourceProvider));
+});
+
+final getEventsUseCaseProvider = Provider<GetEventsUseCase>((ref) {
+  return GetEventsUseCase(ref.watch(eventRepositoryProvider));
+});
+
+final getEventByIdUseCaseProvider = Provider<GetEventByIdUseCase>((ref) {
+  return GetEventByIdUseCase(ref.watch(eventRepositoryProvider));
+});
+
+final createEventUseCaseProvider = Provider<CreateEventUseCase>((ref) {
+  return CreateEventUseCase(ref.watch(eventRepositoryProvider));
+});
+
+final updateEventUseCaseProvider = Provider<UpdateEventUseCase>((ref) {
+  return UpdateEventUseCase(ref.watch(eventRepositoryProvider));
+});
+
+final deleteEventUseCaseProvider = Provider<DeleteEventUseCase>((ref) {
+  return DeleteEventUseCase(ref.watch(eventRepositoryProvider));
+});
+
+final eventListNotifierProvider =
+    StateNotifierProvider<EventListNotifier, AsyncValue<List<Event>>>((ref) {
+  return EventListNotifier(
+    getEventsUseCase: ref.watch(getEventsUseCaseProvider),
+    createEventUseCase: ref.watch(createEventUseCaseProvider),
+    updateEventUseCase: ref.watch(updateEventUseCaseProvider),
+    deleteEventUseCase: ref.watch(deleteEventUseCaseProvider),
+  );
+});

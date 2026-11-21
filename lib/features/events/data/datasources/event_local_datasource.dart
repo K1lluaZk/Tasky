@@ -28,13 +28,15 @@ class EventLocalDataSourceImpl implements EventLocalDataSource {
       }
       if (eventDate != null) {
         final day = DateTime(eventDate.year, eventDate.month, eventDate.day);
-        final nextDay = day.add(const Duration(days: 1));
+        // Construct the next local midnight so calendar-day queries remain
+        // correct across daylight-saving transitions.
+        final nextDay = DateTime(day.year, day.month, day.day + 1);
         final dayStart = day.millisecondsSinceEpoch;
         final dayEnd = nextDay.millisecondsSinceEpoch;
         final allDayEvent = event.eventDate.equals(_dateToIso(day));
         final timedEvent =
             event.startAt.isSmallerThanValue(dayEnd) &
-            event.endAt.isBiggerOrEqualValue(dayStart);
+            event.endAt.isBiggerThanValue(dayStart);
         condition = condition & (allDayEvent | timedEvent);
       }
       return condition;
