@@ -58,5 +58,7 @@ DateTime? _parseOptionalDate(String? value) {
 
   final parsed = DateTime.tryParse(normalized!);
   // ignore: prefer_null_aware_operators
-  return parsed == null ? null : DateTime(parsed.year, parsed.month, parsed.day);
+  return parsed == null
+      ? null
+      : DateTime(parsed.year, parsed.month, parsed.day);
 }
