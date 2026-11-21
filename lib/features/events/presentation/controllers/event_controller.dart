@@ -1,48 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/database/database_provider.dart';
-import '../../data/datasources/event_local_datasource.dart';
-import '../../data/repositories/event_repository_impl.dart';
 import '../../domain/entities/event.dart';
-import '../../domain/repositories/event_repository.dart';
 import '../../domain/usecases/create_event.dart';
 import '../../domain/usecases/delete_event.dart';
 import '../../domain/usecases/get_events.dart';
 import '../../domain/usecases/update_event.dart';
-
-final eventLocalDataSourceProvider = Provider<EventLocalDataSource>((ref) {
-  return EventLocalDataSourceImpl(ref.watch(appDatabaseProvider));
-});
-
-final eventRepositoryProvider = Provider<EventRepository>((ref) {
-  return EventRepositoryImpl(ref.watch(eventLocalDataSourceProvider));
-});
-
-final getEventsUseCaseProvider = Provider<GetEventsUseCase>((ref) {
-  return GetEventsUseCase(ref.watch(eventRepositoryProvider));
-});
-
-final createEventUseCaseProvider = Provider<CreateEventUseCase>((ref) {
-  return CreateEventUseCase(ref.watch(eventRepositoryProvider));
-});
-
-final updateEventUseCaseProvider = Provider<UpdateEventUseCase>((ref) {
-  return UpdateEventUseCase(ref.watch(eventRepositoryProvider));
-});
-
-final deleteEventUseCaseProvider = Provider<DeleteEventUseCase>((ref) {
-  return DeleteEventUseCase(ref.watch(eventRepositoryProvider));
-});
-
-final eventListNotifierProvider =
-    StateNotifierProvider<EventListNotifier, AsyncValue<List<Event>>>((ref) {
-      return EventListNotifier(
-        getEventsUseCase: ref.watch(getEventsUseCaseProvider),
-        createEventUseCase: ref.watch(createEventUseCaseProvider),
-        updateEventUseCase: ref.watch(updateEventUseCaseProvider),
-        deleteEventUseCase: ref.watch(deleteEventUseCaseProvider),
-      );
-    });
 
 class EventListNotifier extends StateNotifier<AsyncValue<List<Event>>> {
   EventListNotifier({
